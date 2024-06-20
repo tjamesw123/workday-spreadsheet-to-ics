@@ -7,7 +7,7 @@ It is a tool where the compiled jar is run within a directory with a Workday Spr
 ### How does it work?
 The program works by converting the Workday spreadsheet class infomation into a formatted iCalendar file using Java
 
-## Prerequisites
+### Prerequisites
 Java: 21 JDK and up
 
 ### How to use?
