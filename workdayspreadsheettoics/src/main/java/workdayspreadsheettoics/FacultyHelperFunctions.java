@@ -2,9 +2,20 @@ package workdayspreadsheettoics;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.fortuna.ical4j.model.Recur;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.Location;
+import net.fortuna.ical4j.model.property.RRule;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.util.RandomUidGenerator;
+import net.fortuna.ical4j.util.UidGenerator;
+
 import java.io.*;
 import java.util.ArrayList; // import the ArrayList class
 import java.util.HashMap;
@@ -189,4 +200,16 @@ public class FacultyHelperFunctions {
         }
         return facultyMember;
     }
+    private static VEvent makeEvent(String eventName, String location, String description, String recurrence, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+      UidGenerator ug = new RandomUidGenerator();
+      Uid uid = ug.generateUid();
+      
+      Recur recur = new Recur(recurrence, false);
+      RRule rrule = new RRule(recur);
+      VEvent vEvent = new VEvent(startDateTime, endDateTime, eventName).withProperty(uid)
+                                                                      .withProperty(new Description(description))
+                                                                      .withProperty(new Location(location))
+                                                                      .withProperty(rrule).getFluentTarget();
+      return vEvent;
+  }
 }

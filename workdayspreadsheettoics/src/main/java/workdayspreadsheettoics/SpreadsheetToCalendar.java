@@ -49,40 +49,7 @@ import net.fortuna.ical4j.util.UidGenerator;
 
 public class SpreadsheetToCalendar {
   private static ArrayList<Faculty> facultyList = new ArrayList<>();
-  public static HashMap<String, DayOfWeek> strToDayOfWeek = new HashMap<String, DayOfWeek>(){{
-    put("Sunday", DayOfWeek.SUNDAY);
-    put("Monday", DayOfWeek.MONDAY);
-    put("Tuesday", DayOfWeek.TUESDAY);
-    put("Wednesday", DayOfWeek.WEDNESDAY);
-    put("Thursday", DayOfWeek.THURSDAY);
-    put("Friday", DayOfWeek.FRIDAY);
-    put("Saturday", DayOfWeek.SATURDAY);
-  }};
-
-  public static HashMap<DayOfWeek, String> dayOfWeekToShortStr = new HashMap<DayOfWeek, String>(){{
-    put(DayOfWeek.SUNDAY, "SU");
-    put(DayOfWeek.MONDAY, "MO");
-    put(DayOfWeek.TUESDAY, "TU");
-    put(DayOfWeek.WEDNESDAY, "WE");
-    put(DayOfWeek.THURSDAY, "TH");
-    put(DayOfWeek.FRIDAY, "FR");
-    put(DayOfWeek.SATURDAY, "SA");
-  }};
-
-  public static HashMap<String, String> shortBuildingToAddress = new HashMap<String, String>(){{//incomplete address list for whole school
-    put("Howe", "Wesley J. Howe Center, 1 Castle Point Terrace, Hoboken, NJ 07030, USA");//McLean Hall, River St, Hoboken, NJ 07030, USA
-    put("McLean", "McLean Hall, River St, Hoboken, NJ 07030, USA");
-    put("Peirce", "Morton-Peirce-Kidde Complex, 607 River St, Hoboken, NJ 07030, USA");
-    put("Carnegie", "Carnegie Laboratory, Hoboken, NJ 07030, USA");
-    put("Burchard", "524 River St #713, Hoboken, NJ 07030");
-    put("Kidde", "607 River St, Hoboken, NJ 07030");
-    put("Gateway North", "601 Hudson St, Hoboken, NJ 07030");
-    put("Edwin A. Stevens", "Hoboken, NJ 07030");
-    put("Gateway South", "601 Hudson St, Hoboken, NJ 07030");
-    put("Morton", "Morton-Peirce-Kidde Complex, 607 River St, Hoboken, NJ 07030, USA");
-    put("Babbio", "525 River St, Hoboken, NJ 07030");
-    put("North Building", "North Building, 1 Castle Point Terrace, Hoboken, NJ 07030, USA");//McLean Hall, River St, Hoboken, NJ 07030, USA
-  }};
+  
   public static void main(String... args) throws IOException, GeneralSecurityException, ParseException {
     // Faculty saving and loading calls
     File databaseFile = new File("faculty.txt");
@@ -99,7 +66,7 @@ public class SpreadsheetToCalendar {
     String relativePath = currentRelativePath.toAbsolutePath().toString();
     // System.out.println("Current absolute path is: " + s);
     // System.out.println(listFilesUsingFilesList(s));
-    for(String str : listFilesUsingFilesList(relativePath)) {
+    for(String str : CalendarHelperFunctions.listFilesUsingFilesList(relativePath)) {
       //System.out.println(str.substring(str.length()-5));
       if(str.substring(str.length()-5).equals(".xlsx")) {
         fileLocation = str;
@@ -117,7 +84,11 @@ public class SpreadsheetToCalendar {
     // Checks if the spreadsheet is a saved schedule, and if it is passes it off to the SavedScheduleToCalendar class
     if (sheet.getRow(0).getCell(0).getStringCellValue().equals("View My Saved Schedules")){
       System.out.println("Workbook is a Saved Schedule, passing off to SavedScheduleToCalendar class");
-      SavedScheduleToCalendar.SavedScheduleToCalendar(facultyList, workbook.getSheetAt(1));
+      if (sheet.getRow(3).getCell(0).getStringCellValue().equals("Severity")) {
+        SavedScheduleToCalendar.SavedScheduleToCalendar(facultyList, workbook.getSheetAt(1));
+      } else {
+        SavedScheduleToCalendar.SavedScheduleToCalendar(facultyList, workbook.getSheetAt(0));
+      }
       return;
     }
 
@@ -254,25 +225,6 @@ public class SpreadsheetToCalendar {
     outputter.output(calendar, fout);
 
 }
-public static Set<String> listFilesUsingFilesList(String dir) throws IOException {
-    try (Stream<Path> stream = Files.list(Paths.get(dir))) {
-        return stream
-          .filter(file -> !Files.isDirectory(file))
-          .map(Path::getFileName)
-          .map(Path::toString)
-          .collect(Collectors.toSet());
-    }
-}
-public static String readStringFromURL(URL url) throws IOException {
-        try (Scanner scanner = new Scanner(url.openStream(),
-                StandardCharsets.UTF_8.toString()))
-        {
-            scanner.useDelimiter("\\A");
-            String result = scanner.hasNext() ? scanner.next() : "";
-            scanner.close();
-            return result;
-        }
-}
 
 private static String semesterType = ""; 
 private static VEvent setupAndMakeEvent(String eventInput, String eventName, String instructorCell, String instructionalFormat, String deliveryModeCell, String startCell, String endCell, String details) throws IOException {
@@ -313,8 +265,8 @@ private static VEvent setupAndMakeEvent(String eventInput, String eventName, Str
 
       String location;
       
-      location = (meetingPatternsArr.length < 3 ? "" : shortBuildingToAddress.containsKey(meetingPatternsArr[2].split(" ")[0]) 
-                                                     ? shortBuildingToAddress.get(meetingPatternsArr[2].split(" ")[0]) 
+      location = (meetingPatternsArr.length < 3 ? "" : CalendarHelperFunctions.shortBuildingToAddress.containsKey(meetingPatternsArr[2].split(" ")[0]) 
+                                                     ? CalendarHelperFunctions.shortBuildingToAddress.get(meetingPatternsArr[2].split(" ")[0]) 
                                                      : meetingPatternsArr[2].split(" \\d")[0]);//Defaults to short address if long address is not in hashmap
       
       Faculty instructor = null;
@@ -343,8 +295,8 @@ private static VEvent setupAndMakeEvent(String eventInput, String eventName, Str
       System.out.println(classesStartReccuringDate);
       System.out.println(classesEndReccuringDate);
 
-      LocalDate startLocalDate = getNextDateOfDayFromDate(classesStartReccuringDate, getStartDay(daysMeetingStrArr, classesStartReccuringDate));
-      LocalDate endLocalDate = getNextDateOfDayFromDate(classesStartReccuringDate, getStartDay(daysMeetingStrArr, classesStartReccuringDate));
+      LocalDate startLocalDate = CalendarHelperFunctions.getNextDateOfDayFromDate(classesStartReccuringDate, CalendarHelperFunctions.getStartDay(daysMeetingStrArr, classesStartReccuringDate));
+      LocalDate endLocalDate = CalendarHelperFunctions.getNextDateOfDayFromDate(classesStartReccuringDate, CalendarHelperFunctions.getStartDay(daysMeetingStrArr, classesStartReccuringDate));
     
       String[] startAndEndTimesInHalfs = meetingPatternsArr[1].split(" - ");
       LocalTime startLocalTime = LocalTime.parse(startAndEndTimesInHalfs[0], DateTimeFormatter.ofPattern("h:mm a"));
@@ -365,74 +317,12 @@ private static VEvent setupAndMakeEvent(String eventInput, String eventName, Str
       // System.out.println(endDateTimeStr);
       // //DateTime endDateTime = new DateTime(endDateTimeStr);
 
-      String recurrence = makeRecurrenceString(classesEndReccuringDate, daysMeetingStrArr);
+      String recurrence = CalendarHelperFunctions.makeRecurrenceString(classesEndReccuringDate, daysMeetingStrArr);
 
       
       
-      return makeEvent(eventName, location, description, recurrence, LocalDateTime.of(startLocalDate, startLocalTime), 
+      return CalendarHelperFunctions.makeEvent(eventName, location, description, recurrence, LocalDateTime.of(startLocalDate, startLocalTime), 
                                                                            LocalDateTime.of(endLocalDate, endLocalTime));
   }
-  private static VEvent makeEvent(String eventName, String location, String description, String recurrence, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-      UidGenerator ug = new RandomUidGenerator();
-      Uid uid = ug.generateUid();
-      
-      Recur recur = new Recur(recurrence, false);
-      RRule rrule = new RRule(recur);
-      VEvent vEvent = new VEvent(startDateTime, endDateTime, eventName).withProperty(uid)
-                                                                      .withProperty(new Description(description))
-                                                                      .withProperty(new Location(location))
-                                                                      .withProperty(rrule).getFluentTarget();
-      return vEvent;
-  }
 
-  public static DayOfWeek getStartDay(String[] daysMeetingStrArr, LocalDate classesStartReccuringDate) {
-    // Needs to get the start day by checking which day is nearest to the classesStartReccuringDate
-    // S M T W T F S
-
-    //Loop through the days in the daysMeetingStrArr to check if they are on the classesStartReccuringDate or after it
-    //if one of them is then pick that one
-    //if not pick the first day in the list
-
-    for (String s : daysMeetingStrArr) {
-      DayOfWeek meetingDay = strToDayOfWeek.get(s);
-      DayOfWeek reccuringStartDay = classesStartReccuringDate.getDayOfWeek();
-      if (reccuringStartDay.getValue() <= meetingDay.getValue()) {
-        return meetingDay;
-      }
-    }
-
-
-
-    return strToDayOfWeek.get(daysMeetingStrArr[0]);
-  }
-
-  public static LocalDate getNextDateOfDayFromDate(LocalDate startingDate, DayOfWeek dayOfWeek) {//Bug that disallows for classes to start on the starting day given
-    LocalDate result = startingDate;
-    int currentDay = result.getDayOfWeek().getValue();
-    int targetDay = dayOfWeek.getValue();
-    int daysToAdd = targetDay - currentDay; 
-    if (currentDay > targetDay) {
-      daysToAdd += 7;
-    }
-    result = result.plusDays(daysToAdd);
-    // while (result.getDayOfWeek() != dayOfWeek) {
-    //   result = result.plusDays(1);
-    // }
-    return result;
-  }
-
-  public static String makeRecurrenceString(LocalDate localEndDate, String[] daysMeeting) {
-
-    //RRULE:FREQ=WEEKLY;UNTIL=20230820T015615Z;WKST=SU;BYDAY=TU,TH //year month day
-    String result = "FREQ=WEEKLY;UNTIL=" + localEndDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T000000Z;WKST=SU;BYDAY=";//SU
-    for (int i = 0; i < daysMeeting.length; i++) {
-      if (i == 0) {
-        result += dayOfWeekToShortStr.get(strToDayOfWeek.get(daysMeeting[i]));
-      } else {
-        result += "," + dayOfWeekToShortStr.get(strToDayOfWeek.get(daysMeeting[i]));
-      }
-    }
-    System.out.println(result);
-    return result;
-  }
 }
