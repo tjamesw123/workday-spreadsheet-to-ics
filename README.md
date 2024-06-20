@@ -2,13 +2,13 @@
 
 ### What is it?
 
-    It is a tool where the compiled jar is run within a directory with a Workday Spreadsheet (.xlsx) to output a formatted complete calendar in the form of an iCalendar file (.ics) which can then be imported into your calendar program of choice.
+It is a tool where the compiled jar is run within a directory with a Workday Spreadsheet (.xlsx) to output a formatted complete calendar in the form of an iCalendar file (.ics) which can then be imported into your calendar program of choice.
 
 ### How does it work?
-    The program works by converting the Workday spreadsheet class infomation into a formatted iCalendar file using Java
+The program works by converting the Workday spreadsheet class infomation into a formatted iCalendar file using Java
 
 ## Prerequisites
-    Java: 21 JDK and up
+Java: 21 JDK and up
 
 ### How to use?
 
@@ -20,7 +20,7 @@
 5. The .ics file should now be generated and your done
 
 #### Note:
-    Tool was originally designed for use by Stevens Institute of Technology students and has not been tested for any other school implementation of Workday spreadsheet formatting (Your results may vary). Any additional faculty infomation not on the spreadsheet but on a website will not be included.
+Tool was originally designed for use by Stevens Institute of Technology students and has not been tested for any other school implementation of Workday spreadsheet formatting (Your results may vary). Any additional faculty infomation not on the spreadsheet but on a website will not be included.
 
  
 
