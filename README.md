@@ -12,7 +12,7 @@ Java: 21 JDK and up
 
 ### How to use?
 
-1. Insure you have Java 21 or higher installed in your system
+1. Ensure you have Java 21 or higher installed in your system
 2. Download the .jar file from the latest release on github
 3. Download your class Workday spreadsheet off of your View Courses page using the button circled in the image below in the top right hand corner
 ![ScheduleSpreadsheet](ScheduleSpreadsheet.png)
