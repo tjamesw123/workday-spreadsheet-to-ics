@@ -93,20 +93,24 @@ public class SpreadsheetToCalendar {
       facultyList = FacultyHelperFunctions.loadFacultyFromURLs();
       FacultyHelperFunctions.saveFacultyListToDatabase(databaseFile, facultyList);
     }
-
     String fileLocation = "";
-    Path currentRelativePath = Paths.get("");
-    String relativePath = currentRelativePath.toAbsolutePath().toString();
-    // System.out.println("Current absolute path is: " + s);
-    // System.out.println(listFilesUsingFilesList(s));
-    for(String str : listFilesUsingFilesList(relativePath)) {
-      //System.out.println(str.substring(str.length()-5));
-      if(str.substring(str.length()-5).equals(".xlsx")) {
-        fileLocation = str;
-        break;
+    if (args.length > 0) {
+      fileLocation = args[0];
+    } else {
+      Path currentRelativePath = Paths.get("");
+      String relativePath = currentRelativePath.toAbsolutePath().toString();
+      // System.out.println("Current absolute path is: " + s);
+      // System.out.println(listFilesUsingFilesList(s));
+      for(String str : listFilesUsingFilesList(relativePath)) {
+        //System.out.println(str.substring(str.length()-5));
+        if(str.substring(str.length()-5).equals(".xlsx")) {
+          fileLocation = str;
+          break;
+        }
       }
+      System.out.println(fileLocation);
     }
-    System.out.println(fileLocation);
+    
     
     FileInputStream file = new FileInputStream(new File(fileLocation));
     Workbook workbook = new XSSFWorkbook(file);
@@ -231,13 +235,16 @@ public class SpreadsheetToCalendar {
     } 
     System.out.println("Getting semester name from classes");
     semesterName = semesterType;
-    
+    String path = "";
+    if (args.length > 1) {
+      path = args[1];
+    }
     FileOutputStream fout;
     if (!semesterName.equals("")) {
-      fout = new FileOutputStream(data.get(startingRow).get(0).split(" - ")[0] + " " + semesterName + ".ics");
+      fout = new FileOutputStream(path + data.get(startingRow).get(0).split(" - ")[0] + " " + semesterName + ".ics");
       System.out.println("Semster Name: " + "(" + semesterName + ")");
     } else {
-      fout = new FileOutputStream(data.get(startingRow).get(0).split(" - ")[0] + " " + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy")) + ".ics");
+      fout = new FileOutputStream(path + data.get(startingRow).get(0).split(" - ")[0] + " " + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy")) + ".ics");
       System.out.println("Year");
     }
     
