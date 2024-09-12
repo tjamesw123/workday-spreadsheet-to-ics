@@ -46,6 +46,8 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.RandomUidGenerator;
 import net.fortuna.ical4j.util.UidGenerator;
 
+import java.util.Arrays;
+
 
 public class SpreadsheetToCalendar {
   private static ArrayList<Faculty> facultyList = new ArrayList<>();
@@ -209,7 +211,7 @@ public class SpreadsheetToCalendar {
         try {
           event = setupAndMakeEvent(row.get(7), row.get(4), row.get(9), row.get(5), row.get(6), row.get(10), row.get(11), row.get(0));
         } catch (Exception e) {
-          //This is to fix a bug
+          // This is to fix a bug of not being able to handle an null from there being no instructor
           event = setupAndMakeEvent(row.get(7), row.get(4), " ", row.get(5), row.get(6), row.get(9), row.get(10), row.get(0));
         }
         
@@ -301,9 +303,13 @@ private static VEvent setupAndMakeEvent(String eventInput, String eventName, Str
         System.out.println("Not scheduled take note");
         return null;
       }
-      //System.out.println("Starting meeting patterns");
+      System.out.println("Starting meeting patterns");
       for (String s : meetingPatternsArr) {
         System.out.println(s);
+      }
+      if (meetingPatternsArr.length == 4) {
+        System.out.println("New meeting patterns setup detected, removing addition infomation");
+        meetingPatternsArr = Arrays.copyOfRange(meetingPatternsArr, 1, meetingPatternsArr.length);
       }
       String[] daysMeetingStrArr = meetingPatternsArr[0].split("/");
 
