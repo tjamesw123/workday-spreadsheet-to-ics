@@ -147,17 +147,18 @@ public class SpreadsheetToCalendar {
       startingRow = r+2;
     }
     System.out.println("Starting row: " + startingRow);
+    
     for (int g = startingRow; !(data.get(g) == null) && (!data.get(g).get(0).equals("My Dropped/Withdrawn Courses") && !data.get(g).get(0).equals("Enrolled Units")); g++) {
       System.out.println("First cell in current row " + data.get(g).get(0));
       System.out.println("Breaking: " + (data.get(g+1) == null));
       List<String> row = data.get(g);
       System.out.println(g);
-      System.out.println(row.get(7));
+      System.out.println(row.get(8)); // New bug of if someone swaps a class or drops a class two boxes will get changed up
       for (int c = 0; c < row.size(); c++) {
         System.out.println((char)(65+c) + " " + c + ": " + "(" + row.get(c) + ")");
       }
 
-      String[] temp = row.get(7).split("\n");
+      String[] temp = row.get(8).split("\n");
       System.out.println(temp.length > 1);
 
       if (temp.length > 1) {//Combination Classes Handler
@@ -179,9 +180,10 @@ public class SpreadsheetToCalendar {
             sI++;
           }
         }
+        // This mapping is altered for handling multi events - mapping probably broken wait till I get a schedule from Maggie who has those sorts of events
         for (String s : eventStrings) {
           VEvent event1;
-          try {
+          try { // setupAndMakeEvent(String eventInput, String eventName, String instructorCell, String instructionalFormat, String deliveryModeCell, String startCell, String endCell, String details)
             event1 = setupAndMakeEvent(s, row.get(4), row.get(9), row.get(5), row.get(6), row.get(10), row.get(11), row.get(0));
           } catch (Exception e) {
             //This is to fix a bug
@@ -197,6 +199,27 @@ public class SpreadsheetToCalendar {
         }
         System.out.println("END");
       } else {//Every other class type
+        //row.get(8) = Event Cell
+        //row.get(4) = Event Name
+        //row.get(9) = Instructor Cell
+        //row.get(6) = Instrucational Format
+        //row.get(7) = Delivery Mode Cell
+        //row.get(10) = Start Cell
+        //row.get(11) = End Cell
+        //row.get(0) = Details
+
+        //NEW MAPPING
+        //row.get(8) = Event Cell
+        //row.get(4) = Event Name
+        //row.get(9) = Instructor Cell
+        //row.get(6) = Instrucational Format
+        //row.get(7) = Delivery Mode Cell
+        //row.get(10) = Start Cell
+        //row.get(11) = End Cell
+        //row.get(0) = Details
+
+
+        //OLD MAPPING
         //row.get(7) = Event Cell
         //row.get(4) = Event Name
         //row.get(9) = Instructor Cell
@@ -205,14 +228,13 @@ public class SpreadsheetToCalendar {
         //row.get(10) = Start Cell
         //row.get(11) = End Cell
         //row.get(0) = Details
-
         
         VEvent event;
-        try {
-          event = setupAndMakeEvent(row.get(7), row.get(4), row.get(9), row.get(5), row.get(6), row.get(10), row.get(11), row.get(0));
+        try { // setupAndMakeEvent(String eventInput, String eventName, String instructorCell, String instructionalFormat, String deliveryModeCell, String startCell, String endCell, String details)
+          event = setupAndMakeEvent(row.get(8), row.get(4), row.get(9), row.get(6), row.get(7), row.get(10), row.get(11), row.get(0));
         } catch (Exception e) {
           // This is to fix a bug of not being able to handle an null from there being no instructor
-          event = setupAndMakeEvent(row.get(7), row.get(4), " ", row.get(5), row.get(6), row.get(9), row.get(10), row.get(0));
+          event = setupAndMakeEvent(row.get(8), row.get(4), " ", row.get(6), row.get(7), row.get(9), row.get(10), row.get(0));
         }
         
         if (event != null) {
